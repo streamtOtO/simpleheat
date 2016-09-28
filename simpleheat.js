@@ -5,7 +5,7 @@ if (typeof module !== 'undefined') module.exports = simpleheat;
 function simpleheat(canvas) {
     if (!(this instanceof simpleheat)) return new simpleheat(canvas);
 
-    this._canvas = canvas = typeof canvas === 'string' ? document.getElementById(canvas) : canvas;
+    this._canvas = canvas;
 
     this._ctx = canvas.getContext('2d');
     this._width = canvas.width;
@@ -26,6 +26,27 @@ simpleheat.prototype = {
         0.8: 'yellow',
         1.0: 'red'
     },
+
+    // defaultGradient: {
+    //     0.001: 'blue',
+    //     0.1  : 'lime',
+    //     0.3  : 'yellow',
+    //     0.5  : '#ffc260',
+    //     0.6  : '#ffb22c',
+    //     0.7  : '#ff851a',
+    //     0.8  : '#ff3402',
+    //     1    : 'red'
+    // },
+
+    // defaultGradient: {
+    //     0.05  : 'lime',
+    //     0.1  : 'yellow',
+    //     0.3  : '#ffc260',
+    //     0.4  : '#ffb22c',
+    //     0.6  : '#ff851a',
+    //     0.8  : '#ff3402',
+    //     1    : 'red'
+    // },
 
     data: function (data) {
         this._data = data;
@@ -106,7 +127,10 @@ simpleheat.prototype = {
         // draw a grayscale heatmap by putting a blurred circle at each data point
         for (var i = 0, len = this._data.length, p; i < len; i++) {
             p = this._data[i];
-            ctx.globalAlpha = Math.max(p[2] / this._max, minOpacity === undefined ? 0.05 : minOpacity);
+            //ctx.globalAlpha = Math.max(p[2] / this._max, minOpacity === undefined ? 0.05 : minOpacity);
+            var intensity = Math.max(p[2] / this._max,minOpacity === undefined ? 0.05 : minOpacity);
+            // If alpha would be outside of the range of [0, 1], map it back to            // that range
+            ctx.globalAlpha = Math.max(Math.min(intensity, 1.0), 0.0);
             ctx.drawImage(this._circle, p[0] - this._r, p[1] - this._r);
         }
 
@@ -131,12 +155,13 @@ simpleheat.prototype = {
     },
 
     _createCanvas:function() {
-        if (typeof document !== 'undefined') {
-            return document.createElement('canvas');
-        } else {
-            // create a new canvas instance in node.js
-            // the canvas class needs to have a default constructor without any parameter
-            return new this._canvas.constructor();
-        }
+        // if (typeof document !== 'undefined') {
+        //     return document.createElement('canvas');
+        // } else {
+        //     // create a new canvas instance in node.js
+        //     // the canvas class needs to have a default constructor without any parameter
+        //     return new this._canvas.constructor();
+        // }
+        return new this._canvas.constructor();
     }
 };
